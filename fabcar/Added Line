@@ -1,0 +1,130 @@
+
+#In invoke.js
+    fcn: 'createDoc',
+    args: ['firstDoc', 'Shoumik38','Nammi31'],
+#In Query.js
+    fcn: 'createSuccess',
+    args: ['firstDoc']
+type Docs struct{
+    DocId string
+    DocName string
+    OwnerId  string
+    EditorId string
+}
+
+else if function == "createDoc" {
+		return s.createDoc(APIstub, args)
+	}else if function == "createSuccess" {
+		return s.createSuccess(APIstub, args)
+	}
+
+var DocId , DocName,OwnerId, EditorId string
+func (s *SmartContract) createDoc(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3")
+	}
+        
+          DocId = "674567"
+	DocName = args[0]
+	 OwnerId = args[1]
+	EditorId = args[2]
+         
+	  
+        doc := Docs{DocId,DocName,OwnerId,EditorId}
+	
+	
+	docJson, err := json.Marshal(doc)
+	err = APIstub.PutState(docName, docJson)
+	if err != nil {
+		return shim.Error("Document Creating failed: " + err.Error())
+	}
+
+	ret := "Document creating successful ;-) "
+
+	return shim.Success([]byte(ret))
+}
+
+#In Query.js
+    fcn: 'accessDoc',
+    args: ['firstDoc', '674567','Nammi31'],
+
+else if function == "accessDoc" {
+		return s.accessDoc(APIstub, args)
+	}
+
+func (s *SmartContract) accessDoc(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3")
+	}
+
+	DocName1 := args[0]
+	 DocId1 := args[1]
+	EditorId1 := args[2]
+
+         accessRight := true
+        if DocName1 != DocName
+             accessRight = false
+         
+         if DocId1 != DocId
+             accessRight = false
+
+         if EditorId1 != EditorId
+             accessRight = false
+
+         if accessRight == true
+
+	ret := "Document accessing is successful ;-) "
+
+	return shim.Success([]byte(ret))
+}
+
+
+func (s *SmartContract) createSuccess(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	docName := args[0]
+
+	objectData, err:= APIstub.GetState(docName)
+	if err != nil {
+		return shim.Error("getting create docData is failed: " + err.Error())
+	}
+
+	return shim.Success(objectData)
+}
+/*else if function == "editDoc" {
+		return s.editDoc(APIstub, args)
+	}else if function == "proposeDoc" {
+		return s.proposeDoc(APIstub, args)
+	}else if function == "endorseDoc" {
+		return s.endorseDoc(APIstub, args)
+	}else if function == "sendToOrderer" {
+		return s.sendToOrderer(APIstub, args)
+	}else if function == "sendToPeer" {
+		return s.sendToPeer(APIstub, args)
+	}*/
+type Author struct{
+    OwnerId string
+    Name string
+    Sign Signature
+    ownDocsId  []string
+    editedDocsId []string  
+}
+type Signature struct {
+     authorName string
+     DocName string
+     DocId   string
+     timeStamp time
+     Sha256   string 
+}
+
+type SegmentWrite struct{
+      segmentId string 
+      AuthorId string
+      timeStamp string
+      text string
+}

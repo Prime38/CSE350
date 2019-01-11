@@ -19,7 +19,7 @@ import (
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
 
-// Define the Smart Contract structure
+// Define the SmartContract structure
 type SmartContract struct {
 }
 

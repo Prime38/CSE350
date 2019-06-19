@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cloud.tinymce.com/5-testing/tinymce.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+</head>
+
+<body>
+    <form method="get" >
+        <textarea id="myTextArea" class="mceEditor">I should buy a boat. </textarea>
+    </form>
+    <script>
+        $(function () {
+            tinyMCE.init({
+                mode: "specific_textareas",
+                editor_selector: "mceEditor",
+                setup: function (ed) {
+                    ed.on('keyup', function (e) {
+                        var code = ed.getContent()
+                        if (now != code && code != '') {
+                            now = code;
+                            msg = now
+                            socket.emit('chat message', msg);
+                        }
+                        // console.log('the content ', ed.getContent());
+                    })
+                }
+            });
+            var socket = io();
+            var now
+            socket.on('chat message', function (msg) {
+                if (now != msg && msg != '') {
+                    // console.log("now:  " + now)
+                    // console.log("msg:  " + msg);
+                    now = msg
+                    tinyMCE.get('myTextArea').setContent(now);
+
+                }
+            });
+        })
+    </script>
+</body>
+
+</html>
+<!-- socket.emit('chat message', code); -->

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>collaborative editor</title>
+	<meta name="description" content="A sidebar menu as seen on the Google Nexus 7 website" />
+	<meta name="keywords" content="google nexus 7 menu, css transitions, sidebar, side menu, slide out menu" />
+	<meta name="author" content="Codrops" />
+	<link rel="shortcut icon" href="../favicon.ico">
+	<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+	<link rel="stylesheet" type="text/css" href="css/demo.css" />
+	<link rel="stylesheet" type="text/css" href="css/component.css" />
+	<script src="js/modernizr.custom.js"></script>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="css/table.css" />
+
+</head>
+
+<body>
+	<div class="modal fade" id="modelInviteForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<form class="contact1-form validate-form" action="/DocEditor" method="post">
+				<div class="modal-content">
+					<div class="modal-header text-center">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body mx-3">
+
+						<div class="md-form mb-4 validate-input">
+							<input type="password" name="editor" placeholder="abc@gmail.com" class="form-control validate input1"
+							 data-validate="Valid email is required: ex@abc.xyz">
+
+						</div>
+
+					</div>
+					<div class="modal-footer d-flex justify-content-center">
+						<button type="submit" class="btn btn-primary" name="ok">Invite</button>
+
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div class="modal fade" id="fillUpDoc" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<form class="contact1-form validate-form" action="/createDoc" method="post">
+				<div class="modal-content">
+					<div class="modal-header text-center">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body mx-3">
+						<div class="md-form mb-5 validate-input">
+							<label data-error="wrong" data-success="right">Document Name</label>
+							<input type="text" name="DocName" class="form-control validate input1" data-validate="Valid email is required: ex@abc.xyz">
+						</div>
+						<div class="md-form mb-4 validate-input">
+							<label data-error="wrong" data-success="right">Invite your friend</label>
+							<input type="text" name="EditorName" placeholder="abc@gmail.com" class="form-control validate input1"
+							 data-validate="Valid email is required: ex@abc.xyz">
+						</div>
+					</div>
+					<div class="modal-footer d-flex justify-content-center">
+						<button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true"></span>Cancel</button>
+						<button type="submit" class="btn btn-primary" name="ok">Let's Go</button>
+
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="container">
+		<ul id="gn-menu" class="gn-menu-main">
+			<li class="gn-trigger">
+				<a class="gn-icon gn-icon-menu"><span>Menu</span></a>
+				<nav class="gn-menu-wrapper">
+					<div class="gn-scroller">
+						<ul class="gn-menu">
+							<li class="gn-search-item">
+								<input placeholder="Search" type="search" class="gn-search">
+								<a class="gn-icon gn-icon-search atr"><span>Search</span></a>
+							</li>
+							<li>
+								<a class="gn-icon gn-icon-download atr">Downloads</a>
+								<ul class="gn-submenu">
+									<!-- <li><a class="gn-icon gn-icon-illustrator">Vector Illustrations</a></li>
+										<li><a class="gn-icon gn-icon-photoshop">Photoshop files</a></li> -->
+								</ul>
+							</li>
+							<li><a class="gn-icon gn-icon-cog atr">Settings</a></li>
+							<li><a class="gn-icon gn-icon-help atr">Help</a></li>
+							<li>
+								<a class="gn-icon gn-icon-archive atr">Archives</a>
+								<ul class="gn-submenu">
+									<li><a class="gn-icon gn-icon-article atr">Your projects</a></li>
+									<li><a class="gn-icon gn-icon-article atr">All projects</a></li>
+									<!-- <li><a class="gn-icon gn-icon-pictures">Images</a></li>
+										<li><a class="gn-icon gn-icon-videos">Videos</a></li> -->
+								</ul>
+							</li>
+						</ul>
+					</div><!-- /gn-scroller -->
+				</nav>
+			</li>
+			<li><a href="" style="text-decoration:none;" role="button" aria-pressed="true" data-toggle="modal" data-target="#fillUpDoc">New
+					Project</a></li>
+			<li><a class="codrops-icon codrops-icon-plus" href="" style="text-decoration:none;" role="button" aria-pressed="true"
+				 data-toggle="modal" data-target="#modelInviteForm"><span>Invite Friend</span></a></li>
+			<li class="col-sm-4" style=" width:809px; height: 60px; font-size:20px; font-family: Arial, Helvetica, sans-serif;">
+				<span>Collaborative Document Editor</span>
+			</li>
+			<li><a class="codrops-icon codrops-icon-drop" href="" style="text-decoration:none;"><span>shoumik38</span></a></li>
+		</ul>
+	</div>
+	<div class="container" style="height:120px;"></div>
+	<div class="container" style="background:rgb(241, 241, 232);height:400px;">
+		<ul class="unstyled-list-stucture">
+			<li class="container-fluid list-row">
+				<div class="col-sm-3">
+					<input class="sellect-all" type="checkbox" area-label="Select-all">
+					<span class="header clickable item">Title</span>
+
+				</div>
+				<div class="col-sm-2">
+					<span class="header clickable item">Owner</span>
+
+				</div>
+				<div class="col-sm-2 ">
+					<span class="header clickable item">Last Modified</span>
+				</div>
+				<div class="col-sm-2 ">
+					<span class="header clickable item">Status</span>
+				</div>
+
+				<div class="col-sm-3  action-btn-row-header">
+					<span class="header item">Actions</span>
+				</div>
+			</li>
+			<li class="container-fluid list-row">
+				<div class="col-sm-3">
+					<input class="sellect-all" type="checkbox" area-label="Select-all">
+					<a href=""> <span class="header clickable item">Project350</span> </a>
+
+				</div>
+				<div class="col-sm-2">
+					<span class="header clickable item">Shoumik38</span>
+
+				</div>
+				<div class="col-sm-2 ">
+					<span class="header clickable item">1 hours ago</span>
+				</div>
+				<div class="col-sm-2 ">
+					<span class="header clickable item">incomplete</span>
+				</div>
+
+				<div class="col-sm-3  action-btn-row-header">
+					<a href=""> <span class="header item">submit</span></a>
+				</div>
+			</li>
+			<li class="container-fluid list-row">
+				<div class="col-sm-3">
+					<input class="sellect-all" type="checkbox" area-label="Select-all">
+					<a href=""> <span class="header clickable item">Technical Writing</span> </a>
+
+				</div>
+				<div class="col-sm-2">
+					<span class="header clickable item">Nammi31</span>
+
+				</div>
+				<div class="col-sm-2 ">
+					<span class="header clickable item">2 Months ago</span>
+				</div>
+				<div class="col-sm-2 ">
+					<span class="header clickable item">completed</span>
+				</div>
+
+				<div class="col-sm-3  action-btn-row-header">
+					<a href=""> <span class="header item">view</span></a>
+				</div>
+			</li>
+		</ul>
+	</div>
+
+	<script src="js/classie.js"></script>
+	<script src="js/gnmenu.js"></script>
+	<script src="createDoc.js"></script>
+	<script >
+		console.log(localStorage['userName']+" "+localStorage['userName']);
+	</script>
+	<script>
+		new gnMenu(document.getElementById('gn-menu'));
+	</script>
+</body>
+
+</html>

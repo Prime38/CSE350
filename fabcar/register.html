@@ -3,7 +3,7 @@
 
 <head>
     <style>
-        #singlebutton {
+        #createDocButton {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -19,7 +19,7 @@
   text-align: center;
 }
 
-#singlebutton :hover {
+#createDocButton :hover {
   background-color: black;
 }
 .centered {
@@ -29,6 +29,9 @@
   transform: translate(-50%, -50%);
   color: #d6132d;
   font-size: 30px;
+}
+#fullpage{
+    background:lightblue;
 }
 
  </style>
@@ -55,17 +58,20 @@
                     <div class="modal-body mx-3 " data-validate="Valid email is required: ex@abc.xyz">
 
                         <div class="md-form mb-5 validate-input" data-validate="Name is required">
-                            <input type="text" name="name" value="" class="form-control validate input1">
                             <label data-error="wrong" data-success="right">username</label>
+                            <input type="text" name="name" value="" class="form-control validate input1">
+                            
                         </div>
                         <div class="md-form mb-5 validate-input">
-                            <input type="email" name="email" value="" class="form-control validate input1">
                             <label data-error="wrong" data-success="right">email</label>
+                            <input type="email" name="email" value="" class="form-control validate input1">
+                            
                         </div>
 
                         <div class="md-form mb-4 validate-input" data-validate="Valid email is required: ex@abc.xyz">
-                            <input type="password" name="password" class="form-control validate input1">
                             <label data-error="wrong" data-success="right">password</label>
+                            <input type="password" name="password" class="form-control validate input1">
+                            
                         </div>
 
                         
@@ -92,15 +98,15 @@
                     </div>
                     <div class="modal-body mx-3">
                         <div class="md-form mb-5 validate-input">
-
-                            <input type="text" name="email" class="form-control validate input1" data-validate = "Valid email is required: ex@abc.xyz">
                             <label data-error="wrong" data-success="right">email</label>
+                            <input type="text" name="email" class="form-control validate input1" data-validate = "Valid email is required: ex@abc.xyz">
+                            
                         </div>
 
                         <div class="md-form mb-4 validate-input">
-
-                            <input type="password" name="password" class="form-control validate input1" data-validate = "Valid email is required: ex@abc.xyz">
                             <label data-error="wrong" data-success="right">password</label>
+                            <input type="password" name="password" class="form-control validate input1" data-validate = "Valid email is required: ex@abc.xyz">
+                            
                         </div>
 
                     </div>
@@ -130,15 +136,12 @@
         </div>
     </nav>
 
-    <div class="container-fluid">
+    <div class="container-fluid"id='fullpage'>
         <div class="row">
             <div class="col-lg-12">
                 <img class="img-responsive" id="myImg" src="background.jpg" alt="">
                 <div class="centered">Share your file and edit the same file collaboratively and simultaneously in real
                     time.</div>
-                <div class="text-center">
-                    <button class="btn btn-primary" id="singlebutton">Create a document</button>
-                </div>
             </div>
         </div>
     </div>

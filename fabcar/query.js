@@ -54,8 +54,8 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	const request = {
 		//targets : --- letting this default to the peers assigned to the channel
 		chaincodeId: 'fabcar',
-		fcn: 'logout',
-        args: ['YvSgD5xAV0'],
+		fcn: 'createDoc',
+    	args: [ '123456','sustnammi@gmail.com','shoumikprime@gmail.com'],
 	};
 
 	// send the query proposal to the peer

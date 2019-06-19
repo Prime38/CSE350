@@ -44,11 +44,13 @@ type Signature struct {
 	Sha256     string
 }
 
-type SegmentWrite struct {
-	segmentId string
-	AuthorId  string
-	timeStamp string
-	text      string
+type Segment struct {
+	Doctype string
+	DocName string
+	SegmentId string
+	AuthorEmail  string
+	TimeStamp string
+	Text      string
 }
 type User struct {
 	Doctype      string
@@ -57,12 +59,16 @@ type User struct {
 	PasswordHash string
 	Token        string
 	Key          string
+	OwnDocs   []string
+	AccessableDocs []string
 }
 type Docs struct {
+	Doctype string
 	DocId    string
 	DocName  string
-	OwnerId  string
-	EditorId string
+	OwnerEmail  string
+	EditorEmail string
+	FullText string
 }
 
 // Define the car structure, with 4 properties.  Structure tags are used by encoding/json library
@@ -72,8 +78,6 @@ type Car struct {
 	Colour string `json:"colour"`
 	Owner  string `json:"owner"`
 }
-
-var DocId, DocName, OwnerId, EditorId string
 
 /*
  * The Init method is called when the Smart Contract "fabcar" is instantiated by the blockchain network
@@ -116,19 +120,17 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.createDoc(APIstub, args)
 	} else if function == "createSuccess" {
 		return s.createSuccess(APIstub, args)
-	} else if function == "accessDoc" {
-		return s.accessDoc(APIstub, args)
 	} else if function == "register" {
 		return s.register(APIstub, args)
 	} else if function == "login" {
 		return s.login(APIstub, args)
 	} else if function == "logout" {
 		return s.logout(APIstub, args)
+	} else if function == "putDoc" {
+		return s.putDoc(APIstub, args)
 	}
-
 	return shim.Error("Invalid Smart Contract function name.")
 }
-
 /*#In invoke.js
     fcn: 'createDoc',
     args: ['firstDoc', 'Shoumik38','Nammi31'],
@@ -139,25 +141,22 @@ func (s *SmartContract) register(APIstub shim.ChaincodeStubInterface, args []str
 	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments, required 3, given " + strconv.Itoa(len(args)))
 	}
-
 	name := args[0]
 	email := args[1]
 	password := args[2]
-
 	h := sha256.New()
 	h.Write([]byte(password))
 	passwordHash := fmt.Sprintf("%x", h.Sum(nil))
-
 	token := utils.RandomString()
-
-	key := utils.RandomString()
-
-	user := User{"user", name, email, passwordHash, token, key}
+	key := name+password
+	var ownDocs  = []string{}
+	var acsDocs = []string{}
+	user := User{"user", name, email, passwordHash, token, key,ownDocs,acsDocs}
 	jsonUser, err := json.Marshal(user)
+
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-
 	err = APIstub.PutState(key, jsonUser)
 	if err != nil {
 		return shim.Error(err.Error())
@@ -245,77 +244,82 @@ func (s *SmartContract) login(APIstub shim.ChaincodeStubInterface, args []string
 
 	return shim.Success([]byte(token + " " + key))
 }
-func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString string) ([]byte, error) {
 
-	fmt.Printf("- getQueryResultForQueryString queryString:\n%s\n", queryString)
-
-	resultsIterator, err := stub.GetQueryResult(queryString)
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	buffer, err := constructQueryResponseFromIterator(resultsIterator)
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Printf("- getQueryResultForQueryString queryResult:\n%s\n", buffer.String())
-
-	return buffer.Bytes(), nil
-}
-func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) (*bytes.Buffer, error) {
-	// buffer is a JSON array containing QueryResults
-	var buffer bytes.Buffer
-	buffer.WriteString("[")
-
-	bArrayMemberAlreadyWritten := false
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return nil, err
-		}
-		// Add a comma before array members, suppress it for the first array member
-		if bArrayMemberAlreadyWritten == true {
-			buffer.WriteString(",")
-		}
-		buffer.WriteString("{\"Key\":")
-		buffer.WriteString("\"")
-		buffer.WriteString(queryResponse.Key)
-		buffer.WriteString("\"")
-
-		buffer.WriteString(", \"Record\":")
-		// Record is a JSON object, so we write as-is
-		buffer.WriteString(string(queryResponse.Value))
-		buffer.WriteString("}")
-		bArrayMemberAlreadyWritten = true
-	}
-	buffer.WriteString("]")
-
-	return &buffer, nil
-}
 func (s *SmartContract) createDoc(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-
 	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 3")
 	}
-
-	DocId = "674567"
-	DocName = args[0]
-	OwnerId = args[1]
-	EditorId = args[2]
-
-	doc := Docs{DocId, DocName, OwnerId, EditorId}
-
+	DocId := args[0]+utils.RandomString()
+	DocName := args[0]
+	OwnerEmail := args[1]
+	EditorEmail := args[2]
+	fullText:=""
+	doc := Docs{"docs",DocId, DocName, OwnerEmail, EditorEmail,fullText}
 	docJSON, err := json.Marshal(doc)
-	err = APIstub.PutState(DocName, docJSON)
 	if err != nil {
 		return shim.Error("Document Creating failed: " + err.Error())
+	}
+	err = APIstub.PutState(DocName, docJSON)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	emailQuery:=newCouchQueryBuilder().addSelector("Doctype","user").addSelector("Email",OwnerEmail).getQueryString()
+	emailData,_:=firstQueryValueForQueryString(APIstub,emailQuery)
+	var owner User
+	_=json.Unmarshal(emailData,&owner)
+	owner.OwnDocs=append(owner.OwnDocs,DocName)
+	jsonOwnerUser,err:=json.Marshal(owner)
+	if err!=nil{
+		return shim.Error(err.Error())
+	}
+	err=APIstub.PutState(owner.Key,jsonOwnerUser)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	editorQuery:=newCouchQueryBuilder().addSelector("Doctype","user").addSelector("Email",EditorEmail).getQueryString()
+	editorData,_:=firstQueryValueForQueryString(APIstub,editorQuery)
+	var editor User
+	_=json.Unmarshal(editorData,&editor)
+	editor.AccessableDocs=append(editor.AccessableDocs,DocName)
+	jsonEditor,err:=json.Marshal(editor)
+	if err!=nil{
+		return shim.Error(err.Error())
+	}
+	err=APIstub.PutState(editor.Key,jsonEditor)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
 	ret := "Document creating successful ;-) "
 
+
 	return shim.Success([]byte(ret))
+
+}
+func (s *SmartContract) putDoc(APIstub shim.ChaincodeStubInterface, args []string) sc.Response{
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 3")
+	}
+	docName:=args[0]
+	fullText:=args[1]
+	docQuery:=newCouchQueryBuilder().addSelector("Doctype","Docs").addSelector("DocName",docName).getQueryString()
+	docData,_:=firstQueryValueForQueryString(APIstub,docQuery)
+	var doc Docs
+	_=json.Unmarshal(docData,&doc)
+	doc.FullText=fullText
+	jsonDoc,err:=json.Marshal(doc)
+	if err!=nil{
+		return shim.Error(err.Error())
+	}
+	err=APIstub.PutState(doc.DocName,jsonDoc)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	ret := "Document Submitted successfully ;-) "
+
+
+	return shim.Success([]byte(ret))
+
 }
 func (s *SmartContract) createSuccess(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
@@ -333,40 +337,39 @@ func (s *SmartContract) createSuccess(APIstub shim.ChaincodeStubInterface, args 
 	return shim.Success(objectData)
 }
 
+
+
 /*#In Query.js
     fcn: 'accessDoc',
 	args: ['firstDoc', '674567','Nammi31'],
 */
-
-func (s *SmartContract) accessDoc(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 3")
-	}
-
-	DocName1 := args[0]
-	DocId1 := args[1]
-	EditorId1 := args[2]
-
-	var accessRight bool = true
-	if DocName1 != DocName {
-		accessRight = false
-	}
-	if DocId1 != DocId {
-		accessRight = false
-	}
-	if EditorId1 != EditorId {
-		accessRight = false
-	}
-	var ret string
-	if accessRight == true {
-		ret = "Document accessing is successful. "
-	}
-
-	return shim.Success([]byte(ret))
-}
+//func (s *SmartContract) accessDoc(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+//
+//	if len(args) != 3 {
+//		return shim.Error("Incorrect number of arguments. Expecting 3")
+//	}
+//
+//	DocName1 := args[0]
+//	DocId1 := args[1]
+//	EditorId1 := args[2]
+//
+//	var accessRight bool = true
+//	if DocName1 != DocName {
+//		accessRight = false
+//	}
+//	if DocId1 != DocId {
+//		accessRight = false
+//	}
+//	if EditorId1 != EditorId {
+//		accessRight = false
+//	}
+//	var ret string
+//	if accessRight == true {
+//		ret = "Document accessing is successful. "
+//	}
+//	return shim.Success([]byte(ret))
+//}
 func (s *SmartContract) getObject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
@@ -572,10 +575,12 @@ func (s *SmartContract) changeCarOwner(APIstub shim.ChaincodeStubInterface, args
 
 // The main function is only relevant in unit test mode. Only included here for completeness.
 func main() {
-
 	// Create a new Smart Contract
 	err := shim.Start(new(SmartContract))
 	if err != nil {
 		fmt.Printf("Error creating new Smart Contract: %s", err)
 	}
+
 }
+
+
